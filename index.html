@@ -17,7 +17,6 @@
         .header-logo { text-align: center; margin: 20px 0; }
         h2 { color: var(--primary); margin: 0; font-weight: 800; font-size: 2rem; }
 
-        /* ABAS */
         .tabs { display: flex; gap: 8px; margin-bottom: 20px; justify-content: center; flex-wrap: wrap; }
         .tab-btn { padding: 12px 25px; border: none; background: #cbd5e1; border-radius: 30px; cursor: pointer; font-weight: 600; color: #475569; transition: 0.3s; }
         .tab-btn.active { background: var(--secondary); color: white; }
@@ -32,8 +31,9 @@
         label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; margin-bottom: 6px; color: var(--secondary); }
         input, select { padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; outline: none; font-size: 0.9rem; }
         
-        button.main-btn { background: var(--primary); color: white; border: none; padding: 14px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 15px; }
-        .btn-secondary-action { background: var(--secondary) !important; display: none; margin-top: 5px; }
+        button.main-btn { background: var(--primary); color: white; border: none; padding: 14px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 15px; transition: 0.2s; }
+        button.main-btn:hover { opacity: 0.9; }
+        .btn-secondary-action { background: #64748b !important; display: none; margin-top: 5px; }
 
         .table-container { overflow-x: auto; background: var(--white); border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         table { width: 100%; border-collapse: collapse; min-width: 1100px; }
@@ -49,12 +49,11 @@
         .btn-edit { background: rgba(37,99,235,0.1); color: var(--accent); }
         .btn-del { background: rgba(220,38,38,0.1); color: var(--danger); }
 
-        /* MODAL */
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); align-items: center; justify-content: center; }
         .modal-content { background: white; padding: 30px; border-radius: 20px; width: 90%; max-width: 400px; position: relative; }
         .close-modal { background: var(--primary); color: white; border: none; padding: 10px; width: 100%; border-radius: 8px; cursor: pointer; margin-top: 20px; font-weight: bold; }
 
-        footer { text-align: center; padding: 15px; background: #fff; position: fixed; bottom: 0; width: 100%; left: 0; display: flex; justify-content: center; align-items: center; gap: 20px; border-top: 1px solid #ddd; }
+        footer { text-align: center; padding: 15px; background: #fff; position: fixed; bottom: 0; width: 100%; left: 0; display: flex; justify-content: center; align-items: center; gap: 20px; border-top: 1px solid #ddd; z-index: 100; }
         .btn-reset { background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 0.7rem; }
     </style>
 </head>
@@ -75,10 +74,10 @@
             <div class="grid-form">
                 <div class="input-group"><label>Data Pedido</label><input type="date" id="v-data"></div>
                 <div class="input-group"><label>Entrega</label><input type="date" id="v-entrega"></div>
-                <div class="input-group full-mobile"><label>Cliente</label><select id="v-cliente-select"><option value="">Selecione...</option></select></div>
-                <div class="input-group full-mobile"><label>Produto</label><select id="v-select" onchange="autoPreencherVenda()"><option value="">Selecione...</option></select></div>
-                <div class="input-group full-mobile"><label>Material/Acabamento</label><input type="text" id="v-acabamento"></div>
-                <div class="input-group"><label>Qtd</label><input type="number" id="v-qtd" value="1"></div>
+                <div class="input-group"><label>Cliente</label><select id="v-cliente-select"><option value="">Selecione...</option></select></div>
+                <div class="input-group"><label>Produto</label><select id="v-select" onchange="autoPreencherVenda()"><option value="">Selecione...</option></select></div>
+                <div class="input-group"><label>Material/Acabamento</label><input type="text" id="v-acabamento"></div>
+                <div class="input-group"><label>Qtd</label><input type="number" id="v-qtd" value="1" min="1"></div>
                 <div class="input-group"><label>Vlr Unit.</label><input type="number" id="v-valorU" step="0.01"></div>
                 <div class="input-group"><label>Entrada (R$)</label><input type="number" id="v-entrada" step="0.01" value="0"></div>
                 <input type="hidden" id="v-custoU">
@@ -96,11 +95,12 @@
 
     <div id="sec-clientes" class="section">
         <div class="card">
+            <input type="hidden" id="edit-id-cliente">
             <div class="grid-form">
-                <div class="input-group full-mobile"><label>Nome do Cliente</label><input type="text" id="c-nome"></div>
-                <div class="input-group full-mobile"><label>Contato</label><input type="text" id="c-contato"></div>
+                <div class="input-group"><label>Nome do Cliente</label><input type="text" id="c-nome"></div>
+                <div class="input-group"><label>Contato</label><input type="text" id="c-contato"></div>
             </div>
-            <button class="main-btn" onclick="salvarCliente()" style="background:var(--secondary)">Cadastrar Cliente</button>
+            <button class="main-btn" id="btn-salvar-cliente" onclick="salvarCliente()" style="background:var(--secondary)">Cadastrar Cliente</button>
         </div>
         <div class="table-container" style="max-width: 800px; margin: 0 auto;">
             <table><thead><tr><th>Nome</th><th>Contato</th><th>Ações</th></tr></thead><tbody id="listaClientes"></tbody></table>
@@ -111,8 +111,8 @@
         <div class="card">
             <input type="hidden" id="edit-id-produto">
             <div class="grid-form">
-                <div class="input-group full-mobile"><label>Nome do Produto</label><input type="text" id="p-nome"></div>
-                <div class="input-group full-mobile"><label>Material Padrão</label><input type="text" id="p-acab"></div>
+                <div class="input-group"><label>Nome do Produto</label><input type="text" id="p-nome"></div>
+                <div class="input-group"><label>Material Padrão</label><input type="text" id="p-acab"></div>
                 <div class="input-group"><label>Custo (R$)</label><input type="number" id="p-custo" step="0.01"></div>
                 <div class="input-group"><label>Venda (R$)</label><input type="number" id="p-venda" step="0.01"></div>
             </div>
@@ -130,36 +130,33 @@
 <footer><span>UpNexto 1.0 | © Gleyson Araujo</span><button class="btn-reset" onclick="limparSistema()">Resetar Sistema</button></footer>
 
 <script>
-    // --- NAVEGAÇÃO ENTRE ABAS (CORRIGIDO) ---
-    function navegar(aba) {
-        // Esconde todas as seções
-        document.getElementById('sec-vendas').classList.remove('active');
-        document.getElementById('sec-clientes').classList.remove('active');
-        document.getElementById('sec-produtos').classList.remove('active');
-        
-        // Remove active de todos os botões
-        document.getElementById('btn-vendas').classList.remove('active');
-        document.getElementById('btn-clientes').classList.remove('active');
-        document.getElementById('btn-produtos').classList.remove('active');
+    // --- UTILITÁRIOS ---
+    const getDB = (key) => JSON.parse(localStorage.getItem(key) || "[]");
+    const setDB = (key, data) => localStorage.setItem(key, JSON.stringify(data));
 
-        // Ativa a aba clicada
+    function navegar(aba) {
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         document.getElementById('sec-' + aba).classList.add('active');
         document.getElementById('btn-' + aba).classList.add('active');
     }
 
-    // --- FUNÇÕES DE CLIENTE ---
+    // --- CLIENTES ---
     function salvarCliente() {
         const nome = document.getElementById('c-nome').value;
         const contato = document.getElementById('c-contato').value;
-        if(!nome) return alert("Preencha o nome");
-        let db = JSON.parse(localStorage.getItem('db_cli_v10') || "[]");
-        db.push({nome, contato});
-        localStorage.setItem('db_cli_v10', JSON.stringify(db));
-        document.getElementById('c-nome').value = ""; document.getElementById('c-contato').value = "";
+        if(!nome) return alert("Preencha o nome do cliente");
+        
+        let db = getDB('db_cli_v10');
+        db.push({ id: Date.now(), nome, contato });
+        setDB('db_cli_v10', db);
+        
+        document.getElementById('c-nome').value = ""; 
+        document.getElementById('c-contato').value = "";
         atualizarInterface();
     }
 
-    // --- FUNÇÕES DE PRODUTO ---
+    // --- PRODUTOS ---
     function salvarProduto() {
         const idEd = document.getElementById('edit-id-produto').value;
         const p = { 
@@ -169,18 +166,22 @@
             custo: parseFloat(document.getElementById('p-custo').value) || 0, 
             venda: parseFloat(document.getElementById('p-venda').value) || 0 
         };
-        if(!p.nome) return alert("Digite o nome");
-        let db = JSON.parse(localStorage.getItem('db_prod_v10') || "[]");
+        if(!p.nome) return alert("Digite o nome do produto");
+        
+        let db = getDB('db_prod_v10');
         if(idEd) {
             const idx = db.findIndex(i => i.id === parseInt(idEd));
-            db[idx] = p;
+            if(idx !== -1) db[idx] = p;
         } else { db.push(p); }
-        localStorage.setItem('db_prod_v10', JSON.stringify(db));
-        limparFormProduto(); atualizarInterface();
+        
+        setDB('db_prod_v10', db);
+        limparFormProduto(); 
+        atualizarInterface();
     }
 
     function prepararEdicaoProduto(id) {
-        const p = JSON.parse(localStorage.getItem('db_prod_v10')).find(i => i.id === id);
+        const p = getDB('db_prod_v10').find(i => i.id === id);
+        if(!p) return;
         document.getElementById('edit-id-produto').value = p.id;
         document.getElementById('p-nome').value = p.nome;
         document.getElementById('p-acab').value = p.acab;
@@ -188,6 +189,7 @@
         document.getElementById('p-venda').value = p.venda;
         document.getElementById('btn-salvar-produto').innerText = "Salvar Alteração";
         document.getElementById('cancel-edit-produto').style.display = "block";
+        window.scrollTo(0,0);
     }
 
     function limparFormProduto() {
@@ -198,9 +200,9 @@
         document.getElementById('cancel-edit-produto').style.display = "none";
     }
 
-    // --- FUNÇÕES DE VENDAS ---
+    // --- VENDAS ---
     function autoPreencherVenda() {
-        const p = JSON.parse(localStorage.getItem('db_prod_v10') || "[]").find(i => i.nome === document.getElementById('v-select').value);
+        const p = getDB('db_prod_v10').find(i => i.nome === document.getElementById('v-select').value);
         if(p) {
             document.getElementById('v-valorU').value = p.venda;
             document.getElementById('v-custoU').value = p.custo;
@@ -223,19 +225,26 @@
             entrada: parseFloat(document.getElementById('v-entrada').value) || 0,
             statusFin: "Pendente"
         };
+        
         if(!v.cliente || !v.prod) return alert("Selecione Cliente e Produto");
-        let vendas = JSON.parse(localStorage.getItem('db_vend_v10') || "[]");
+        
+        let vendas = getDB('db_vend_v10');
         if(idEd) {
             const idx = vendas.findIndex(i => i.id === parseInt(idEd));
-            v.statusFin = vendas[idx].statusFin;
-            vendas[idx] = v;
+            if(idx !== -1) {
+                v.statusFin = vendas[idx].statusFin;
+                vendas[idx] = v;
+            }
         } else { vendas.unshift(v); }
-        localStorage.setItem('db_vend_v10', JSON.stringify(vendas));
-        limparFormVenda(); atualizarInterface();
+        
+        setDB('db_vend_v10', vendas);
+        limparFormVenda(); 
+        atualizarInterface();
     }
 
     function prepararEdicaoVenda(id) {
-        const v = JSON.parse(localStorage.getItem('db_vend_v10')).find(x => x.id === id);
+        const v = getDB('db_vend_v10').find(x => x.id === id);
+        if(!v) return;
         document.getElementById('edit-id-venda').value = v.id;
         document.getElementById('v-data').value = v.data;
         document.getElementById('v-entrega').value = v.entrega;
@@ -248,76 +257,90 @@
         document.getElementById('v-entrada').value = v.entrada;
         document.getElementById('btn-salvar-venda').innerText = "Salvar Alterações";
         document.getElementById('cancel-edit-venda').style.display = "block";
+        window.scrollTo(0,0);
     }
 
     function limparFormVenda() {
         document.getElementById('edit-id-venda').value = "";
         document.getElementById('btn-salvar-venda').innerText = "Registrar Pedido";
         document.getElementById('cancel-edit-venda').style.display = "none";
-        document.getElementById('v-entrada').value = "0"; document.getElementById('v-qtd').value = "1";
+        document.getElementById('v-entrada').value = "0"; 
+        document.getElementById('v-qtd').value = "1";
     }
 
-    // --- ATUALIZAÇÃO DA INTERFACE ---
+    // --- INTERFACE ---
     function atualizarInterface() {
-        const produtos = JSON.parse(localStorage.getItem('db_prod_v10') || "[]");
-        const clientes = JSON.parse(localStorage.getItem('db_cli_v10') || "[]");
-        const vendas = JSON.parse(localStorage.getItem('db_vend_v10') || "[]");
+        const produtos = getDB('db_prod_v10');
+        const clientes = getDB('db_cli_v10');
+        const vendas = getDB('db_vend_v10');
 
-        // Preencher Selects
+        // Selects
         document.getElementById('v-cliente-select').innerHTML = '<option value="">Selecione...</option>' + clientes.map(c => `<option value="${c.nome}">${c.nome}</option>`).join('');
         document.getElementById('v-select').innerHTML = '<option value="">Selecione...</option>' + produtos.map(p => `<option value="${p.nome}">${p.nome}</option>`).join('');
 
         // Tabela Clientes
-        document.getElementById('listaClientes').innerHTML = clientes.map((c, i) => `<tr><td><strong>${c.nome}</strong></td><td>${c.contato}</td><td><button class="btn-action btn-del" onclick="deletarItem('db_cli_v10', ${i})">✕</button></td></tr>`).join('');
+        document.getElementById('listaClientes').innerHTML = clientes.map(c => `<tr><td><strong>${c.nome}</strong></td><td>${c.contato}</td><td><button class="btn-action btn-del" onclick="deletarItem('db_cli_v10', ${c.id})">✕</button></td></tr>`).join('');
         
         // Tabela Produtos
-        document.getElementById('listaCatalogo').innerHTML = produtos.map((p, i) => `<tr><td><strong>${p.nome}</strong></td><td>${p.acab}</td><td>R$ ${p.custo.toFixed(2)}</td><td>R$ ${p.venda.toFixed(2)}</td><td><button class="btn-action btn-edit" onclick="prepararEdicaoProduto(${p.id})">✏️</button> <button class="btn-action btn-del" onclick="deletarItem('db_prod_v10', ${i})">🗑️</button></td></tr>`).join('');
+        document.getElementById('listaCatalogo').innerHTML = produtos.map(p => `<tr><td><strong>${p.nome}</strong></td><td>${p.acab}</td><td>R$ ${p.custo.toFixed(2)}</td><td>R$ ${p.venda.toFixed(2)}</td><td><button class="btn-action btn-edit" onclick="prepararEdicaoProduto(${p.id})">✏️</button> <button class="btn-action btn-del" onclick="deletarItem('db_prod_v10', ${p.id})">🗑️</button></td></tr>`).join('');
 
         // Tabela Vendas
         document.getElementById('listaVendas').innerHTML = vendas.map(v => {
             const total = v.qtd * v.vU;
             const saldo = v.statusFin === "Pago" ? 0 : (total - v.entrada);
+            const dtP = v.data ? v.data.split('-').reverse().join('/') : '--';
+            const dtE = v.entrega ? v.entrega.split('-').reverse().join('/') : '--';
+            
             return `<tr>
-                <td style="font-size:0.75rem">${v.data.split('-').reverse().join('/')}<br><strong>E: ${v.entrega.split('-').reverse().join('/')}</strong></td>
+                <td style="font-size:0.75rem">${dtP}<br><strong>E: ${dtE}</strong></td>
                 <td class="clickable-name" onclick="visualizarPedido(${v.id})">${v.cliente}</td>
                 <td>${v.prod}</td><td>${v.qtd}</td><td>R$ ${total.toFixed(2)}</td><td style="color:var(--success)">R$ ${v.entrada.toFixed(2)}</td>
                 <td style="font-weight:bold; color:${saldo > 0 ? 'var(--danger)' : 'var(--success)'}">R$ ${saldo.toFixed(2)}</td>
                 <td><button onclick="toggleStatus(${v.id})" class="status-btn ${v.statusFin === 'Pago' ? 'status-pago' : 'status-pendente'}">${v.statusFin}</button></td>
-                <td><button class="btn-action btn-edit" onclick="prepararEdicaoVenda(${v.id})">✏️</button> <button class="btn-action btn-del" onclick="deletarVenda(${v.id})">🗑️</button></td>
+                <td><button class="btn-action btn-edit" onclick="prepararEdicaoVenda(${v.id})">✏️</button> <button class="btn-action btn-del" onclick="deletarItem('db_vend_v10', ${v.id})">🗑️</button></td>
             </tr>`;
         }).join('');
     }
 
     function visualizarPedido(id) {
-        const v = JSON.parse(localStorage.getItem('db_vend_v10')).find(x => x.id === id);
-        document.getElementById('modalBody').innerHTML = `<h3>Detalhes do Pedido</h3><hr><p><strong>Cliente:</strong> ${v.cliente}</p><p><strong>Produto:</strong> ${v.prod}</p><p><strong>Quantidade:</strong> ${v.qtd}</p><p><strong>Entrada:</strong> R$ ${v.entrada.toFixed(2)}</p><p><strong>Total:</strong> R$ ${(v.qtd * v.vU).toFixed(2)}</p>`;
+        const v = getDB('db_vend_v10').find(x => x.id === id);
+        if(!v) return;
+        document.getElementById('modalBody').innerHTML = `
+            <h3 style="margin-top:0">Detalhes do Pedido</h3>
+            <hr>
+            <p><strong>Cliente:</strong> ${v.cliente}</p>
+            <p><strong>Produto:</strong> ${v.prod}</p>
+            <p><strong>Acabamento:</strong> ${v.acab || 'Padrão'}</p>
+            <p><strong>Quantidade:</strong> ${v.qtd}</p>
+            <p><strong>Valor Unit:</strong> R$ ${v.vU.toFixed(2)}</p>
+            <p><strong>Entrada:</strong> R$ ${v.entrada.toFixed(2)}</p>
+            <p><strong>Total:</strong> R$ ${(v.qtd * v.vU).toFixed(2)}</p>
+        `;
         document.getElementById('viewModal').style.display = 'flex';
     }
 
     function toggleStatus(id) {
-        let vendas = JSON.parse(localStorage.getItem('db_vend_v10'));
+        let vendas = getDB('db_vend_v10');
         const v = vendas.find(x => x.id === id);
-        v.statusFin = (v.statusFin === "Pago" ? "Pendente" : "Pago");
-        localStorage.setItem('db_vend_v10', JSON.stringify(vendas));
-        atualizarInterface();
+        if(v) {
+            v.statusFin = (v.statusFin === "Pago" ? "Pendente" : "Pago");
+            setDB('db_vend_v10', vendas);
+            atualizarInterface();
+        }
     }
 
-    function deletarItem(db, idx) { 
-        let d = JSON.parse(localStorage.getItem(db)); d.splice(idx, 1); 
-        localStorage.setItem(db, JSON.stringify(d)); atualizarInterface(); 
-    }
-
-    function deletarVenda(id) {
-        if(confirm("Excluir?")) {
-            let v = JSON.parse(localStorage.getItem('db_vend_v10')).filter(x => x.id !== id);
-            localStorage.setItem('db_vend_v10', JSON.stringify(v)); atualizarInterface();
+    function deletarItem(dbKey, id) { 
+        if(confirm("Deseja realmente excluir este item?")) {
+            let d = getDB(dbKey).filter(item => item.id !== id);
+            setDB(dbKey, d); 
+            atualizarInterface(); 
         }
     }
 
     function closeModal() { document.getElementById('viewModal').style.display = 'none'; }
-    function limparSistema() { if(confirm("Apagar tudo?")) { localStorage.clear(); atualizarInterface(); } }
+    function limparSistema() { if(confirm("ATENÇÃO: Isso apagará todos os dados permanentemente! Continuar?")) { localStorage.clear(); atualizarInterface(); } }
     
-    // Início
+    // Inicialização
     const hoje = new Date().toISOString().split('T')[0];
     document.getElementById('v-data').value = hoje;
     document.getElementById('v-entrega').value = hoje;
